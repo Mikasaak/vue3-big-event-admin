@@ -2,7 +2,7 @@ import axios from 'axios'
 import { useUserStore } from '@/stores'
 import { ElMessage } from 'element-plus'
 import router from '@/router'
-const baseURL = 'http://big-event-vue-api-t.itheima.net'
+const baseURL = 'http://big-event-vue-api-t.itheima.net/'
 
 const instance = axios.create({
   baseURL,
@@ -15,7 +15,7 @@ instance.interceptors.request.use(
     const userStore = useUserStore()
     if (userStore.token) {
       // 如果有token，就添加到请求头中
-      config.headers.Authorization = `Bearer ${userStore.token}`
+      config.headers.Authorization = `${userStore.token}`
     }
     return config
   },
@@ -30,8 +30,7 @@ instance.interceptors.response.use(
   function (response) {
     // 2xx 范围内的状态码都会触发该函数。
     // 对响应数据做点什么
-    if (response.data.code === 0) return response
-
+    if (response.data.code === 0) return response.data
     ElMessage.error(response.data.message || '未知错误')
 
     return Promise.reject(response.data)

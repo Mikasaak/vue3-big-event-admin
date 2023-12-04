@@ -1,27 +1,30 @@
 <script setup>
 import { User, Lock } from '@element-plus/icons-vue'
-import { reactive } from 'vue'
+import { reactive, watch } from 'vue'
 import { ref } from 'vue'
-
+import { userLoginService, userRegisterService } from '@/api/user'
+import { useUserStore } from '@/stores'
+import { useRouter } from 'vue-router'
+//form 表单数据
 const formData = reactive({
   isRegister: false,
   username: '',
   password: '',
-  confirmPassword: ''
+  repassword: ''
 })
 const rules = {
   username: [
     { required: true, message: '请输入用户名', trigger: ['blur', 'change'] },
-    { min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' }
+    { min: 3, max: 10, message: '长度在 3 到 10 个字符', trigger: 'blur' }
   ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, max: 20, message: '长度在 6 到 20 个字符', trigger: 'blur' },
-    { pattern: /^\S{6,20}$/, message: '密码格式不正确', trigger: 'blur' }
+    { min: 6, max: 15, message: '长度在 6 到 15 个字符', trigger: 'blur' },
+    { pattern: /^\S{6,15}$/, message: '密码格式不正确', trigger: 'blur' }
   ],
-  confirmPassword: [
+  repassword: [
     { required: true, message: '请输入确认密码', trigger: 'blur' },
-    { min: 6, max: 20, message: '长度在 6 到 20 个字符', trigger: 'blur' },
+    { min: 6, max: 15, message: '长度在 6 到 15 个字符', trigger: 'blur' },
     {
       validator: (rule, value, callback) => {
         if (value === formData.password) {
@@ -35,30 +38,46 @@ const rules = {
   ]
 }
 const form = ref(null)
-const handleLogin = () => {
+const userStore = useUserStore()
+
+const router = useRouter()
+
+const handleLogin = async () => {
   console.log('登录')
-  handleReset()
+  await form.value.validate()
+  console.log('验证成功')
+  const res = await userLoginService(formData)
+  ElMessage({
+    message: '登录成功',
+    type: 'success'
+  })
+  console.log(res)
+  userStore.setToken(res.token)
+  router.push('/')
 }
 
-const handleRegister = () => {
+const handleRegister = async () => {
   console.log('注册')
-  form.value.validate((valid) => {
-    if (valid) {
-      console.log(valid)
-      console.log('submit!')
-    } else {
-      console.log(valid)
-      console.log('error submit!!')
-      return false
-    }
+  await form.value.validate()
+  console.log('验证成功')
+  await userRegisterService(formData)
+  ElMessage({
+    message: '注册成功',
+    type: 'success'
   })
 }
 
 const handleReset = () => {
   console.log('重置')
-  console.log(form)
   form.value.resetFields()
 }
+
+watch(
+  () => formData.isRegister,
+  () => {
+    handleReset()
+  }
+)
 </script>
 
 <template>
@@ -92,9 +111,9 @@ const handleReset = () => {
             placeholder="请输入密码"
           ></el-input>
         </el-form-item>
-        <el-form-item prop="confirmPassword">
+        <el-form-item prop="repassword">
           <el-input
-            v-model="formData.confirmPassword"
+            v-model="formData.repassword"
             :prefix-icon="Lock"
             type="password"
             placeholder="请输入再次密码"
@@ -109,6 +128,7 @@ const handleReset = () => {
           >
             注册
           </el-button>
+
           <el-button
             class="button"
             type="primary"
