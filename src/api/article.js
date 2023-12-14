@@ -96,3 +96,18 @@ export function articleGetArticleDetailService(id) {
 export function articleAddArticleService(data) {
   return request.post(`/my/article/add`, data)
 }
+
+/**
+ * 更新文章
+ * @param data
+ * @param data.title {string} 文章标题
+ * @param data.content {string} 文章内容
+ * @param data.cate_id {string} 文章分类
+ * @param data.cover_img {string} 封面图片地址
+ * @param data.state {string} 文章状态，0为草稿，1为待审核，2为审核通过，3为审核失败
+ * @param data.id {string} 文章id
+ * @returns {Promise<axios.AxiosResponse<any>>}
+ */
+export function articleUpdateArticleService(data) {
+  return request.put(`/my/article/info`, data)
+}
