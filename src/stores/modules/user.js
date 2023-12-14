@@ -18,6 +18,7 @@ export const useUserStore = defineStore(
       userInfo.value = res.data
       console.log(res)
     }
+    getUserInfo()
 
     return {
       token,
